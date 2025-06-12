@@ -1,15 +1,15 @@
 //import library
-const express = require('express')
-const app = express()
-
+const express = require('express') 
 const bodyparser = require('body-parser')
+const mysql = require('mysql2/promise')
+const cors = require('cors')
+
+
+const app = express()
 app.use(bodyparser.json())
+app.use(cors())
 
 const port = 8000
-
-// สำหรับเก็บ user
-let users = []
-let counter = 1
 
 /*
 GET /users สำหรับ get users ทั้งหมดที่บันทึกเข้าไปออกมา
@@ -19,124 +19,116 @@ PUT /users/:id สำหรับการแก้ไข users รายคน 
 DELETE /users/:id สำหรับการลบ users รายคน (ตาม id ที่บันทึกเข้าไป)
 */
 
-//path = GET /users สำหรับ get users ทั้งหมดที่บันทึกเข้าไปออกมา
-app.get('/users', (req, res) => {
-  const filterUsers =users.map(user => {
-    return{
-      id: user.id ,
-      firstname: user.firstname ,
-      lastname: user.lastname ,
-      fullname: user.firstname + ' ' + user.lastname
-    }
+let conn = null
+
+const initMySQL = async () => {
+  conn = await mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'tutorials', //ใส่ชื่อ data base
+    port: 8889
   })
-  res.json(filterUsers)
+}
+
+
+//path = GET /users สำหรับ get users ทั้งหมดที่บันทึกเข้าไปออกมา
+app.get('/users', async (req, res) => {
+  const results = await conn.query('SELECT * FROM user') 
+    res.json(results[0])
 })
 
 
 // path  = POST /users สำหรับการสร้าง users ใหม่บันทึกเข้าไป
-app.post('/users', (req, res) =>{
-  //รับ user ที่ส่งเข้ามา
-  let user = req.body
-  user.id = counter
-  counter += 1
-  
+app.post('/users', async (req, res) => {
+  try {
+    const userData = req.body                        
+    const results  = await conn.query('INSERT INTO user SET ?', userData)
 
-  //เอาข้อมูลไปเก็บใน array
-  users.push(user)
-  res.json({
-    message: 'add ok',
-    user: user
-  })
+    res.json({ 
+      message: 'insert ok', 
+      data: results[0] 
+    })
 
-  //output terminal
-  res.send(req.body)
+  } catch (error) {
+    console.error('Error message', error.message)
+    res.status(500).json({
+      message: 'somthing wrong'
+    })
+  }
 })
 
 
 //path = GET /users/:id สำหรับการดึง users รายคนออกมา
-app.get('/users/:id', (req, res) => {
-  let id = req.params.id
+app.get('/users/:id', async (req, res) => {
+  try {
+    let id = req.params.id
+    const results = await conn.query('SELECT * FROM user WHERE id = ?' , id) //ชื่อต้องตรงกับ DB
+    
+    if (results[0].length == 0){
+      throw {statusCode: 404, message: 'not found'}
+    }
+    res.json(results[0][0]) //จะได้ออกมาเป็น obj
+    //res.json(results[0]) //จะได้ออกมาเป็น array
 
-  //หา index ที่จะลบ
-  let selectedIndex = users.findIndex(user => user.id == id)
-
-  //ลบ ตาม index ที่หาเจอ
-  res.json(users[selectedIndex])
+  } catch (error) {
+    console.error('Error message', error.message)
+    let statusCode = error.statusCode || 500
+    res.status(statusCode).json({
+      message: 'somthing wrong' ,
+      errorMassage: error.message
+    })
+  }
 })
 
 
-// path = PATCH /user/:id 
-/*app.patch('/user/:id', (req, res) => {
-  let id = req.params.id
-  let updateUser = req.body
-
-  //หา user จาก id ที่ส่งมา
-  let selectedIndex = users.findIndex(user => user.id == id)
-
-  //update ข้อมูล user (null || 'ค่าที่ update')
-  if (updateUser.firstname) {
-    users[selectedIndex].firstname = updateUser.firstname
-  }
-  
-  if (users[selectedIndex].lastname) {
-    users[selectedIndex].lastname = updateUser.lastname 
-  }
-  
-
-  //ส่งข้อมูลที่ update เสร็จแล้วกลับไป
-  res.json({
-    message: 'update user complete!',
-    data: {
-      user: updateUser,
-      indexUpdate: selectedIndex
-    }
-  }) 
-})*/
-
 //path = PUT /users/:id สำหรับการแก้ไข users รายคน (ตาม id ที่บันทึกเข้าไป)
-app.put('/users/:id', (req, res) => {
-  let id = req.params.id
-  let updateUser = req.body
+app.put('/users/:id', async (req, res) => {
+  try {
+    let id = req.params.id
+    let updateUser = req.body
+    const results  = await conn.query(
+      'UPDATE user SET ? WHERE id = ?', 
+      [updateUser , id]
+    )
 
-  //หา user จาก id ที่ส่งมา
-  let selectedIndex = users.findIndex(user => user.id == id)
+    res.json({ 
+      message: 'update ok', 
+      data: results[0] 
+    })
 
-  //update ข้อมูล user (null || 'ค่าที่ update')
-  users[selectedIndex].firstname = updateUser.firstname || updateUser.firstname 
-  users[selectedIndex].lastname = updateUser.lastname  || updateUser.lastname 
-  users[selectedIndex].age = updateUser.age || updateUser.age
-  users[selectedIndex].gender = updateUser.gender || updateUser.gender 
- 
-  //ส่งข้อมูลที่ update เสร็จแล้วกลับไป
-  res.json({
-    message: 'update user complete!',
-    data: {
-      user: updateUser,
-      indexUpdate: selectedIndex
-    }
-  }) 
+  } catch (error) {
+    console.error('Error message', error.message)
+    res.status(500).json({
+      message: 'somthing wrong'
+    })
+  }
 })
 
 
 // path = DELETE /users/:id สำหรับการลบ users รายคน (ตาม id ที่บันทึกเข้าไป)
-app.delete('/users/:id', (req, res) => {
-  let id = req.params.id
+app.delete('/users/:id', async (req, res) => {
+ try {
+    let id = req.params.id
+    const results  = await conn.query('DELETE FROM user WHERE id = ?', id)
 
-  //หา user จาก id ที่ส่งมา
-  let selectedIndex = users.findIndex(user => user.id == id)
+    res.json({ 
+      message: 'delete ok', 
+      data: results[0] 
+    })
 
-  //ลบ
-  users.splice(selectedIndex, 1)
-
-  res.json({
-    message: 'delete complete!',
-    indexDelete: selectedIndex
-  })
+  } catch (error) {
+    console.error('Error message', error.message)
+    res.status(500).json({
+      message: 'somthing wrong'
+    })
+  }
 })
 
 
 //output terminal
-app.listen(port, (req, res) => {
+app.listen(port, async (req, res) => {
+  await initMySQL()
   console.log('http server run at ' + port)
 })
 
