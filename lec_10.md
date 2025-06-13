@@ -222,4 +222,4 @@ app.use(cors())
 ```
 
 **ถ้าต่อถูก จะได้**
-![alt text](image.png)
+![alt text](./img/connet.png)

@@ -31,6 +31,33 @@ const initMySQL = async () => {
   })
 }
 
+/*---------------------------------*/
+const validateData = (userData) => {
+    let errors = []
+
+    if (!userData.firstname) {
+        errors.push('input firstname')
+    }
+    if (!userData.lastname) {
+        errors.push('input lastname')
+    }
+    if (!userData.age) {
+        errors.push('input age')
+    }
+    if (!userData.gender) {
+        errors.push('input gender')
+    }
+    if (!userData.interrests) {
+        errors.push('input interests')
+    }
+    if (!userData.description) {
+        errors.push('input description')
+    }
+
+    return errors
+}
+/*---------------------------------*/
+
 
 //path = GET /users สำหรับ get users ทั้งหมดที่บันทึกเข้าไปออกมา
 app.get('/users', async (req, res) => {
@@ -42,7 +69,15 @@ app.get('/users', async (req, res) => {
 // path  = POST /users สำหรับการสร้าง users ใหม่บันทึกเข้าไป
 app.post('/users', async (req, res) => {
   try {
-    const userData = req.body                        
+    const userData = req.body  
+    
+    const errors = validateData(userData)
+    if (errors.length > 0){
+      throw {
+        message: 'missing data' ,
+        errors: errors
+      }
+    }
     const results  = await conn.query('INSERT INTO user SET ?', userData)
 
     res.json({ 
@@ -51,9 +86,13 @@ app.post('/users', async (req, res) => {
     })
 
   } catch (error) {
+    const errorMassage = error.message || 'somthing wrong'
+    const errors = error.errors || []
+
     console.error('Error message', error.message)
     res.status(500).json({
-      message: 'somthing wrong'
+      message: errorMassage ,
+      errors: errors
     })
   }
 })
