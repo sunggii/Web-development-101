@@ -1,0 +1,111 @@
+@font-face {
+    font-family: 'kanit';
+    src: url('./Kanit/Kanit-Light.ttf');
+}
+body{
+    font-family: 'kanit';
+}
+.container{
+    width: 100%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.header{
+    font-size: 30px;
+    text-align: center;
+}
+
+.header-from{
+    width: 140px;
+}
+
+.flex{
+    display: flex;
+}
+
+.from-input{
+    margin-bottom: 10px;
+}
+
+input.from, textarea{
+    border: 1px gainsboro solid;
+    width: 100%;
+}
+input.interest{
+    margin-left: 30px;
+}
+textarea{
+    /*opacity: 0.5;*/
+    color: rgb(0, 0, 0);
+}
+a.link{
+    color: black;
+}
+a.link:hover{
+    color: #3399FF;
+}
+
+
+.center{
+    text-align: center;
+}
+
+.button{
+    border: 0;
+    width: 50%;
+    height: 40px;
+    background-color: gray;
+    color: whitesmoke;
+    border-radius: 15px;
+}
+.button:hover{
+    background-color: #3399FF;
+    cursor: pointer;
+}
+.button:active{
+    background-color: #3399FF;
+}
+.button:focus{
+    background-color: #3399FF;
+}
+
+.emoji::after{
+    content: '🤳🏽';
+}
+
+.message {
+    background-color: lightgray;
+    padding: 10px;
+    margin-bottom:10px;
+    display: none;
+}
+
+.message.success{
+    background-color: lightgreen;
+    display: block;
+}
+
+.message.danger{
+    background-color: lightcoral;
+    display: block;
+}
+
+
+@media screen and (max-width: 768px) {
+    .flex{
+        flex-direction: column;
+    }
+
+    .header {
+        font-size: 24px;
+    }
+
+    .button {
+        width: 100%;
+    }
+}

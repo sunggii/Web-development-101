@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Register from </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+    <a href="user.html">go to user management</a>
+    
+    <div class="container">
+        <div class="header from-input emoji"> <!-- มี 2 class แบบนี้ได้ เว้นด้วยเคาะ -->
+            Register from 
+        </div>
+
+        <div class="flex from-input">
+            <div class="header-from" >  
+                first name 
+            </div> 
+            <input class="from" type="text" name="firstname">
+        </div>
+        <div class="flex from-input">
+            <div class="header-from"> 
+                last name 
+            </div>
+            <input class="from" type="text" name="lastname">
+        </div>
+        <div class="flex from-input">
+            <div class="header-from">
+                age
+            </div> 
+            <input class="from" type="number" min ="0" max="100" name="age">
+        </div>
+
+    
+        <div class="gender flex from-input">
+            <div class="header-from"> gender </div>
+            <div class="flex">
+                <div>
+                    <input name="gender" type="radio" value="male"> male
+                </div>
+                <div>
+                    <input name="gender" type="radio" value="female"> female
+                </div>
+            </div>
+        </div>
+    
+        <div class="interest from-input">
+            interest
+            <div>
+                <input class="interest" name="interest" type="checkbox" value="coding"> coding
+            </div>
+            <div>
+                <input class="interest" name="interest" type="checkbox" value="drawing"> drawing
+            </div>
+            <div>
+                <input class="interest" name="interest" type="checkbox" value="baking"> baking
+            </div>
+        </div>
+    
+        <div class="description from-input">
+            identity description
+            <div>
+                <textarea name="description" id=""> type here </textarea>
+            </div>
+        </div>
+        
+       <div class="link from-input center">
+        <a  class="link" href="https://picsum.photos/">Lorem Picsum</a>
+       </div>
+        
+       <!--message-->
+       <div class="message" id="message">
+    
+       </div>
+
+        <!--ปุ่มส่ง-->
+        <div class="center">
+            <button class="button" onclick="submitData()">submit</button>
+        </div>
+        
+    </div>
+    <!-- JS -->
+     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+     <script src="index.js"></script>
+    </body>
+</html>
